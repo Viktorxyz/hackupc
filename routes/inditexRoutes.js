@@ -3,7 +3,11 @@ const inditexController = require('../controllers/indtitexController');
 
 const router = express.Router();
 
-router.route('/').get(inditexController.visualSearch);
-router.route('/:prompt').get(inditexController.visualSearchByPrompt);
+router
+  .route('/visual-search')
+  .post(inditexController.uploadImage, inditexController.visualSearch);
+router
+  .route('/:prompt')
+  .post(inditexController.visualSearchByPrompt, inditexController.visualSearch);
 
 module.exports = router;
