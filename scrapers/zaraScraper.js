@@ -45,7 +45,7 @@ module.exports = async function zaraScraper(url) {
       };
 
       const getImage = () => {
-        const img = document.querySelector(".media-image__image"); //media-image__image media__wrapper--media
+        const img = document.querySelector(".media__wrapper--media"); //media-image__image media__wrapper--media
         return img ? img.src : null;
       };
 
