@@ -38,7 +38,7 @@ module.exports = async function zaraScraper(url) {
     ]);
 
     // Extract data with fallbacks if selectors aren't found
-    const productData = await page.evaluate(() => {
+    const productData = await page.evaluate((externalURL) => {
       const getText = (selector) => {
         const el = document.querySelector(selector);
         return el ? el.textContent.trim() : null;
@@ -50,17 +50,17 @@ module.exports = async function zaraScraper(url) {
       };
 
       return {
+        product_url: externalURL,
         product_name:
           getText(".product-detail-info__header-name") ||
           getText('[data-qa-action="product-name"]'),
         product_price:
           getText(".money-amount__main") || getText(".price__amount-current"),
-        product_image: getImage(),
-        product_url: url,
+        product_image: getImage()
       };
-    });
+    }, url);
 
-    if (!productData.name || !productData.price) {
+    if (!productData.product_name || !productData.product_price) {
       throw new Error("Essential product data not found on page");
     }
 
