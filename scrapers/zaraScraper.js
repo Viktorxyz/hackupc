@@ -1,0 +1,74 @@
+const puppeteer = require("puppeteer");
+
+module.exports = async function zaraScraper(url) {
+  const browser = await puppeteer.launch({
+    headless: true, // Run in headless mode for production
+    args: [
+      "--no-sandbox",
+      "--disable-setuid-sandbox",
+      "--disable-dev-shm-usage",
+      "--disable-accelerated-2d-canvas",
+      "--disable-gpu",
+    ],
+  });
+
+  const page = await browser.newPage();
+
+  // Set realistic browser headers
+  await page.setUserAgent(
+    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"
+  );
+  await page.setExtraHTTPHeaders({
+    "accept-language": "en-US,en;q=0.9",
+  });
+
+  try {
+    console.log(`Navigating to ${url}`);
+    await page.goto(url, {
+      waitUntil: "domcontentloaded",
+      timeout: 30000,
+    });
+
+    // Wait for either the product name or price to appear as confirmation the page loaded
+    await Promise.race([
+      page.waitForSelector(".product-detail-info__header-name", {
+        timeout: 10000,
+      }),
+      page.waitForSelector(".money-amount__main", { timeout: 10000 }),
+    ]);
+
+    // Extract data with fallbacks if selectors aren't found
+    const productData = await page.evaluate((externalURL) => {
+      const getText = (selector) => {
+        const el = document.querySelector(selector);
+        return el ? el.textContent.trim() : null;
+      };
+
+      const getImage = () => {
+        const img = document.querySelector(".media-image__image"); //media-image__image media__wrapper--media
+        return img ? img.src : null;
+      };
+
+      return {
+        product_url: externalURL,
+        product_name:
+          getText(".product-detail-info__header-name") ||
+          getText('[data-qa-action="product-name"]'),
+        product_price:
+          getText(".money-amount__main") || getText(".price__amount-current"),
+        product_image: getImage()
+      };
+    }, url);
+
+    if (!productData.product_name || !productData.product_price) {
+      throw new Error("Essential product data not found on page");
+    }
+
+    await browser.close();
+    return productData;
+  } catch (error) {
+    await browser.close();
+    console.error("Scraping error:", error);
+    throw new Error(`Failed to scrape product: ${error.message}`);
+  }
+};

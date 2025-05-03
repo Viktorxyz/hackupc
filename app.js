@@ -1,15 +1,16 @@
-const express = require("express");
-const morgan = require("morgan");
-const cors = require("cors");
-const mongoSanitize = require("express-mongo-sanitize");
-const inditexRouter = require("./routes/inditexRoutes");
-const xss = require("xss-clean");
+const express = require('express');
+const morgan = require('morgan');
+const cors = require('cors');
+const mongoSanitize = require('express-mongo-sanitize');
+const xss = require('xss-clean');
+
+const inditexRouter = require('./routes/inditexRoutes');
 
 const app = express();
 app.use(cors());
 
-if (process.env.NODE_ENV === "development") {
-  app.use(morgan("dev"));
+if (process.env.NODE_ENV === 'development') {
+  app.use(morgan('dev'));
 }
 
 //app.use(express.json({ limit: '10kb' }));
@@ -21,6 +22,6 @@ app.use((req, res, next) => {
   next();
 });
 
-app.use("/api/v1/inditex", inditexRouter);
+app.use('/api/v1/inditex', inditexRouter);
 
 module.exports = app;

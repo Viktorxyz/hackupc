@@ -21,13 +21,11 @@ const getAccessToken = async () => {
     data: data,
   };
   const response = await axios(config);
-  console.log(response.data);
   return response.data.id_token;
 };
 
 const performVisualSearch = async (imageUrl) => {
   const accessToken = await getAccessToken();
-  console.log(accessToken);
   const config = {
     method: "get",
     url: `https://api.inditex.com/pubvsearch/products?image=${encodeURIComponent(
