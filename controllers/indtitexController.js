@@ -2,22 +2,47 @@ const scraperDispatcher = require('../scrapers/scraperDispatcher');
 const performVisualSearch = require('../services/visualSearchService');
 const catchAsync = require('../utils/catchAsync');
 const generate = require('../services/GenerateImageAI');
+const multer = require('multer');
+const path = require('path');
 
-const getProducts = catchAsync(async function (arr) {
-  const ress = await Promise.all(
-    arr.map(async (element) => {
-      const resScrape = await scraperDispatcher(element.brand, element.link);
-      element.image = resScrape.product_image;
-
-      return element;
-    }),
-  );
-  console.log(ress);
-  return ress;
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, 'public/img/');
+  },
+  filename: (req, file, cb) => {
+    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
+    const ext = path.extname(file.originalname);
+    cb(null, file.fieldname + '-' + uniqueSuffix + ext);
+  },
 });
 
+const upload = multer({ storage: storage });
+
+exports.uploadImage = upload.single('image');
+
+const getImageUrl = (req) => {
+  console.log(req.image);
+  if (req.image) {
+    return req.image;
+  } else {
+    if (process.env.NODE_ENV.trim() == 'production') {
+      if (req.file) {
+        return `${req.protocol}://${req.get('host')}/public/img/${req.file.originalname}`;
+      }
+    } else {
+      if (req.file) {
+        return `${req.protocol}://${req.get('host')}/public/img/${req.file.originalname}`;
+      } else {
+        return req.query.image;
+      }
+    }
+  }
+};
+
 exports.visualSearch = catchAsync(async (req, res, next) => {
-  const imageUrl = req.query.image;
+  let imageUrl = getImageUrl(req);
+
+  console.log(imageUrl);
   const result = await performVisualSearch.performVisualSearch(imageUrl);
 
   if (result.length === 0) {
@@ -43,6 +68,12 @@ exports.visualSearch = catchAsync(async (req, res, next) => {
 });
 
 exports.visualSearchByPrompt = catchAsync(async (req, res, next) => {
-  generate(req.params.prompt);
+  const imageName = await generate(req.body.prompt);
+  if (process.env.NODE_ENV.trim() === 'production') {
+    req.image = `${req.protocol}://${req.get('host')}/public/img/${imageName}`;
+  } else {
+    req.image = req.query.image;
+  }
+
   next();
 });
