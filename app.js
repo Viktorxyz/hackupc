@@ -5,6 +5,7 @@ const mongoSanitize = require('express-mongo-sanitize');
 const xss = require('xss-clean');
 
 const inditexRouter = require('./routes/inditexRoutes');
+const viewRouter = require('./routes/viewRoutes');
 
 const app = express();
 app.use(cors());
@@ -23,6 +24,7 @@ app.use((req, res, next) => {
   next();
 });
 
+app.use('/', viewRouter);
 app.use('/api/v1/inditex', inditexRouter);
 
 module.exports = app;
