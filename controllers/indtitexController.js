@@ -20,19 +20,28 @@ const upload = multer({ storage: storage });
 
 exports.uploadImage = upload.single('image');
 
-exports.visualSearch = catchAsync(async (req, res, next) => {
-  let imageUrl;
-  if (process.env.NODE_ENV.trim() == 'production') {
-    if (req.file) {
-      imageUrl = `${req.protocol}://${req.get('host')}/public/img/${req.file.originalname}`;
-    }
+const getImageUrl = (req) => {
+  console.log(req.image);
+  if (req.image) {
+    return req.image;
   } else {
-    if (req.file) {
-      imageUrl = `${req.protocol}://${req.get('host')}/public/img/${req.file.originalname}`;
+    if (process.env.NODE_ENV.trim() == 'production') {
+      if (req.file) {
+        return `${req.protocol}://${req.get('host')}/public/img/${req.file.originalname}`;
+      }
     } else {
-      imageUrl = req.query.image;
+      if (req.file) {
+        return `${req.protocol}://${req.get('host')}/public/img/${req.file.originalname}`;
+      } else {
+        return req.query.image;
+      }
     }
   }
+};
+
+exports.visualSearch = catchAsync(async (req, res, next) => {
+  let imageUrl = getImageUrl(req);
+
   console.log(imageUrl);
   const result = await performVisualSearch.performVisualSearch(imageUrl);
 
@@ -59,7 +68,12 @@ exports.visualSearch = catchAsync(async (req, res, next) => {
 });
 
 exports.visualSearchByPrompt = catchAsync(async (req, res, next) => {
-  const imageName = await generate(req.params.prompt);
-  req.image = imageName; // url from server
+  const imageName = await generate(req.body.prompt);
+  if (process.env.NODE_ENV.trim() === 'production') {
+    req.image = `${req.protocol}://${req.get('host')}/public/img/${imageName}`;
+  } else {
+    req.image = req.query.image;
+  }
+
   next();
 });
