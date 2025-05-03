@@ -33,7 +33,7 @@ module.exports = async function generate(description) {
       .slice(0, 8);
     const filename = `${hash}.jpg`;
 
-    fs.writeFileSync(filename, buffer);
+    fs.writeFileSync(`public/img/${filename}`, buffer);
     console.log(`Image saved as ${filename}`);
     return filename;
   } catch (error) {
