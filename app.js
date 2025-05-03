@@ -1,14 +1,26 @@
-const http = require("http");
+const express = require("express");
+const morgan = require("morgan");
+const cors = require("cors");
+const mongoSanitize = require("express-mongo-sanitize");
+const inditexRouter = require("./routes/inditexRoutes");
+const xss = require("xss-clean");
 
-const hostname = "127.0.0.1";
-const port = 3000;
+const app = express();
+app.use(cors());
 
-const server = http.createServer((req, res) => {
-  res.statusCode = 200;
-  res.setHeader("Content-Type", "text/plain");
-  res.end("Hello, World!\n");
+if (process.env.NODE_ENV === "development") {
+  app.use(morgan("dev"));
+}
+
+//app.use(express.json({ limit: '10kb' }));
+//app.use(mongoSanitize());
+//app.use(xss());
+
+app.use((req, res, next) => {
+  req.requestTime = new Date().toISOString();
+  next();
 });
 
-server.listen(port, hostname, () => {
-  console.log(`Server running at http://${hostname}:${port}/`);
-});
+app.use("/api/v1/inditex", inditexRouter);
+
+module.exports = app;
