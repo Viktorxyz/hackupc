@@ -11,7 +11,7 @@ const url = 'https://ir-api.myqa.cc/v1/openai/images/generations';
 module.exports = async function generate(description) {
   let query = `Generate a ${description}. Photorealistic.`;
   const payload = {
-    prompt: description,
+    prompt: query,
     model: model,
     quality: 'auto',
   };

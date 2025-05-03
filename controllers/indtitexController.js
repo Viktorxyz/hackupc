@@ -5,6 +5,7 @@ const generate = require('../services/GenerateImageAI');
 const multer = require('multer');
 const path = require('path');
 const sharp = require('sharp');
+const fs = require('fs');
 
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
@@ -19,6 +20,23 @@ const storage = multer.diskStorage({
     cb(null, imageName);
   },
 });
+
+exports.deleteImage = (req, res, next) => {
+  console.log(req.zaras);
+  const imagePath = path.join(__dirname, '..', 'public', 'img', req.imageName);
+  fs.unlink(imagePath, (err) => {
+    if (err) {
+      console.error('Error:', err);
+      next();
+    } else {
+      res.status(200).json({
+        status: 'success',
+        results: req.zaras.length,
+        data: req.zaras,
+      });
+    }
+  });
+};
 
 const convertToJpg = async (req, res, next) => {
   if (!req.file) return next();
@@ -63,9 +81,6 @@ exports.visualSearch = catchAsync(async (req, res, next) => {
   const result = await performVisualSearch.performVisualSearch(imageUrl);
   console.log(result);
 
-  if (result.length === 0) {
-    return res.status(200).json({ message: 'There are no products' });
-  }
   const ress = await Promise.all(
     result.map(async (element) => {
       const resScrape = await scraperDispatcher(element.brand, element.link);
@@ -76,11 +91,12 @@ exports.visualSearch = catchAsync(async (req, res, next) => {
     }),
   );
 
-  res.status(200).json({
-    status: 'success',
-    results: ress.length,
-    data: ress,
-  });
+  // res.status(200).json({
+  //   status: 'success',
+  //   results: ress.length,
+  //   data: ress,
+  // });
+  req.zaras = ress;
 
   next();
 });
