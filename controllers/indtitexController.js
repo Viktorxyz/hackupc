@@ -104,7 +104,7 @@ exports.visualSearch = catchAsync(async (req, res, next) => {
 exports.visualSearchByPrompt = catchAsync(async (req, res, next) => {
   const imageName = await generate(req.body.prompt);
   if (process.env.NODE_ENV.trim() === 'production') {
-    req.image = `${req.protocol}://${req.get('host')}/public/img/${imageName}`;
+    req.image = `${process.env.HOST}/public/img/${imageName}`;
   } else {
     req.image = req.query.image;
   }

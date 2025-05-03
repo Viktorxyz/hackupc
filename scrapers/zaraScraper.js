@@ -1,8 +1,9 @@
 const puppeteer = require("puppeteer");
+const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
 
 module.exports = async function zaraScraper(url) {
   const browser = await puppeteer.launch({
-    headless: true, // Run in headless mode for production
+    headless: true,
     args: [
       "--no-sandbox",
       "--disable-setuid-sandbox",
@@ -29,46 +30,32 @@ module.exports = async function zaraScraper(url) {
       timeout: 30000,
     });
 
-    // Wait for either the product name or price to appear as confirmation the page loaded
-    await Promise.race([
-      page.waitForSelector(".product-detail-info__header-name", {
-        timeout: 10000,
-      }),
-      page.waitForSelector(".money-amount__main", { timeout: 10000 }),
-    ]);
+    // Wait specifically for product images to load
+    await page.waitForSelector(".media-image__image.media__wrapper--media", {
+      timeout: 15000,
+      visible: true
+    });
 
-    // Extract data with fallbacks if selectors aren't found
-    const productData = await page.evaluate((externalURL) => {
-      const getText = (selector) => {
-        const el = document.querySelector(selector);
-        return el ? el.textContent.trim() : null;
-      };
+    // Extract only image data
+    await delay(500)
+    // Extract only the first image URL
+    const firstImageUrl = await page.evaluate(() => {
+      const img = document.querySelector(".media-image__image.media__wrapper--media");
+      return img ? img.src : null;
+    });
 
-      const getImage = () => {
-        const img = document.querySelector(".media__wrapper--media"); //media-image__image media__wrapper--media
-        return img ? img.src : null;
-      };
-
-      return {
-        product_url: externalURL,
-        product_name:
-          getText(".product-detail-info__header-name") ||
-          getText('[data-qa-action="product-name"]'),
-        product_price:
-          getText(".money-amount__main") || getText(".price__amount-current"),
-        product_image: getImage()
-      };
-    }, url);
-
-    if (!productData.product_name || !productData.product_price) {
-      throw new Error("Essential product data not found on page");
+    if (!firstImageUrl) {
+      throw new Error("No product image found on page");
     }
 
     await browser.close();
-    return productData;
+    return { 
+      product_url: url,
+      product_image: firstImageUrl 
+    };
   } catch (error) {
     await browser.close();
     console.error("Scraping error:", error);
-    throw new Error(`Failed to scrape product: ${error.message}`);
+    throw new Error(`Failed to scrape product images: ${error.message}`);
   }
 };
