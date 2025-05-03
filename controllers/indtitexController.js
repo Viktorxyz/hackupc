@@ -45,7 +45,7 @@ exports.uploadImage = upload.single('image');
 exports.visualSearch = catchAsync(async (req, res, next) => {
   let imageUrl;
   if (req.image) {
-    return req.image;
+    imageUrl = req.image;
   } else {
     if (process.env.NODE_ENV.trim() == 'production') {
       if (req.file) {
