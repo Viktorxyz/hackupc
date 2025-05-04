@@ -1,9 +1,8 @@
 const puppeteer = require("puppeteer");
-const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
 
 module.exports = async function zaraScraper(url) {
   const browser = await puppeteer.launch({
-    headless: true,
+    headless: "new",
     args: [
       "--no-sandbox",
       "--disable-setuid-sandbox",
@@ -23,25 +22,29 @@ module.exports = async function zaraScraper(url) {
     "accept-language": "en-US,en;q=0.9",
   });
 
+  // Reduce bot detection
+  await page.evaluateOnNewDocument(() => {
+    Object.defineProperty(navigator, "webdriver", { get: () => false });
+  });
+
   try {
     console.log(`Navigating to ${url}`);
     await page.goto(url, {
-      waitUntil: "networkidle2",
+      waitUntil: "domcontentloaded",
       timeout: 60000,
     });
 
-    // Wait specifically for product images to load
-    await page.waitForSelector('[data-qa-qualifier="product-detail-info-name"]', {
-      timeout: 30000,
-      visible: true
-    });
+    await page.waitForSelector("img", { timeout: 15000 });
 
-    // Extract only image data
-    // await delay(1000)
-    // Extract only the first image URL
+    // Get the first visible image
     const firstImageUrl = await page.evaluate(() => {
-      const img = document.querySelector(".media-image__image.media__wrapper--media");
-      return img ? img.src : null;
+      const images = document.querySelectorAll("img");
+      for (const img of images) {
+        if (img.complete && img.naturalWidth > 0) {
+          return img.src;
+        }
+      }
+      return null;
     });
 
     if (!firstImageUrl) {
