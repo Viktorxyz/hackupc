@@ -24,13 +24,13 @@ const getAccessToken = async () => {
   return response.data.id_token;
 };
 
-const performVisualSearch = async (imageUrl) => {
+const performVisualSearch = async (imageUrl, page, pageSize) => {
   const accessToken = await getAccessToken();
   const config = {
     method: 'get',
     url: `https://api.inditex.com/pubvsearch/products?image=${encodeURIComponent(
       imageUrl,
-    )}`,
+    )}&page=${page}&perPage=${pageSize}`,
     headers: {
       Authorization: `Bearer ${accessToken}`,
       'Content-Type': 'application/json',
@@ -38,6 +38,7 @@ const performVisualSearch = async (imageUrl) => {
     },
   };
 
+  //console.log(config.url);
   const response = await axios(config);
   return response.data;
 };

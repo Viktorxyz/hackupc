@@ -4,7 +4,7 @@ const inditexController = require('../controllers/indtitexController');
 const router = express.Router();
 
 router
-  .route('/visual-search')
+  .route('/visual-search/')
   .post(
     inditexController.uploadImage,
     inditexController.setImageName,
@@ -12,7 +12,7 @@ router
     inditexController.deleteImage,
   );
 router
-  .route('/visual-search/prompt')
+  .route('/visual-search/prompt/')
   .post(
     inditexController.visualSearchByPrompt,
     inditexController.visualSearch,

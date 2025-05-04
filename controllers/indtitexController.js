@@ -69,6 +69,8 @@ const upload = multer({ storage: storage });
 exports.uploadImage = upload.single('image');
 
 exports.visualSearch = catchAsync(async (req, res, next) => {
+  const page = req.query.page || 1;
+  const pageSize = 1;
   let imageUrl;
   if (req.image) {
     imageUrl = req.image;
@@ -86,7 +88,11 @@ exports.visualSearch = catchAsync(async (req, res, next) => {
     }
   }
   console.log(imageUrl);
-  const result = await performVisualSearch.performVisualSearch(imageUrl);
+  const result = await performVisualSearch.performVisualSearch(
+    imageUrl,
+    page,
+    pageSize,
+  );
 
   const ress = await Promise.all(
     result.map(async (element) => {
