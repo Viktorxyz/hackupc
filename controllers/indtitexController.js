@@ -41,7 +41,7 @@ exports.deleteImage = (req, res, next) => {
   console.log(imagePath);
   fs.unlink(imagePath, (err) => {
     if (err) {
-      console.error('Error:', err);
+      console.error('Error :', err);
       next();
     } else {
       res.status(200).json({
