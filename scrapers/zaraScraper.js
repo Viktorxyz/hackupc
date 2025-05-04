@@ -32,8 +32,8 @@ module.exports = async function zaraScraper(url) {
 
     // Wait specifically for product images to load
     await page.waitForSelector(".media-image__image", {
-      timeout: 15000
-      // visible: false
+      timeout: 15000,
+      visible: false
     });
 
     // Extract only image data
