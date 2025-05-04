@@ -31,13 +31,13 @@ module.exports = async function zaraScraper(url) {
     });
 
     // Wait specifically for product images to load
-    await page.waitForSelector(".media-image__image.media__wrapper--media", {
-      timeout: 15000,
-      visible: true
-    });
+    // await page.waitForSelector(".media-image__image.media__wrapper--media", {
+    //   timeout: 15000,
+    //   visible: true
+    // });
 
     // Extract only image data
-    await delay(500)
+    await delay(1000)
     // Extract only the first image URL
     const firstImageUrl = await page.evaluate(() => {
       const img = document.querySelector(".media-image__image.media__wrapper--media");
