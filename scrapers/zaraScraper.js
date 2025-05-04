@@ -26,21 +26,21 @@ module.exports = async function zaraScraper(url) {
   try {
     console.log(`Navigating to ${url}`);
     await page.goto(url, {
-      waitUntil: "domcontentloaded",
+      waitUntil: "networkidle0",
       timeout: 30000,
     });
 
     // Wait specifically for product images to load
-    await page.waitForSelector(".media-image__image", {
-      timeout: 15000
-      // visible: false
+    await page.waitForSelector(".media-image__image.media__wrapper--media", {
+      timeout: 15000,
+      visible: false
     });
 
     // Extract only image data
-    await delay(1000)
+    // await delay(1000)
     // Extract only the first image URL
     const firstImageUrl = await page.evaluate(() => {
-      const img = document.querySelector(".media-image__image");
+      const img = document.querySelector(".media-image__image.media__wrapper--media");
       return img ? img.src : null;
     });
 
