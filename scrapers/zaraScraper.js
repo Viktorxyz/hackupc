@@ -27,7 +27,7 @@ module.exports = async function zaraScraper(url) {
     console.log(`Navigating to ${url}`);
     await page.goto(url, {
       waitUntil: "domcontentloaded",
-      timeout: 60000,
+      timeout: 30000,
     });
 
     // Wait specifically for product images to load
@@ -40,7 +40,7 @@ module.exports = async function zaraScraper(url) {
     await page.waitForFunction(() => {
       const img = document.querySelector('.media.product-detail-image__image .media__wrapper--media img');
       return img && img.src !== 'https://static.zara.net/stdstatic/6.67.0/images/transparent-background.png';
-    }, { timeout: 15000 }); // Adjust timeout as needed
+    }, { timeout: 30000 }); // Adjust timeout as needed
 
     // Extract only the first image URL
     const firstImageUrl = await page.evaluate(() => {
