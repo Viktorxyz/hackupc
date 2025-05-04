@@ -14,7 +14,6 @@ router
   .route('/visual-search/prompt')
   .post(
     inditexController.visualSearchByPrompt,
-    inditexController.uploadImage,
     inditexController.visualSearch,
     inditexController.deleteImage,
   );

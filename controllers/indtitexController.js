@@ -22,7 +22,7 @@ const storage = multer.diskStorage({
 });
 
 exports.deleteImage = (req, res, next) => {
-  console.log(req.zaras);
+  //console.log(req.zaras);
   const imagePath = path.join(__dirname, '..', 'public', 'img', req.imageName);
   fs.unlink(imagePath, (err) => {
     if (err) {
@@ -77,9 +77,9 @@ exports.visualSearch = catchAsync(async (req, res, next) => {
       }
     }
   }
-  console.log(imageUrl);
+  //console.log(imageUrl);
   const result = await performVisualSearch.performVisualSearch(imageUrl);
-  console.log(result);
+  //console.log(result);
 
   const ress = await Promise.all(
     result.map(async (element) => {
@@ -97,12 +97,13 @@ exports.visualSearch = catchAsync(async (req, res, next) => {
   //   data: ress,
   // });
   req.zaras = ress;
-
   next();
 });
 
 exports.visualSearchByPrompt = catchAsync(async (req, res, next) => {
   const imageName = await generate(req.body.prompt);
+  req.imageName = imageName;
+  console.log(req.imageName, 'sadas');
   if (process.env.NODE_ENV.trim() === 'production') {
     req.image = `${process.env.HOST}/public/img/${imageName}`;
   } else {
