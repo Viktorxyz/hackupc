@@ -31,7 +31,7 @@ module.exports = async function zaraScraper(url) {
     });
 
     // Wait specifically for product images to load
-    await page.waitForSelector(".media-image__image.media__wrapper--media", {
+    await page.waitForSelector('[data-qa-qualifier="product-detail-info-name"]', {
       timeout: 30000,
       visible: true
     });
