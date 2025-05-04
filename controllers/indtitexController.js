@@ -7,6 +7,12 @@ const path = require('path');
 const sharp = require('sharp');
 const fs = require('fs');
 
+exports.setImageName = (req, res, next) => {
+  req.imageName = req.file.filename;
+
+  next();
+};
+
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
     cb(null, 'public/img/');
@@ -16,6 +22,7 @@ const storage = multer.diskStorage({
     const ext = path.extname(file.originalname);
     const imageName = file.fieldname + '-' + uniqueSuffix + ext;
     req.imageName = imageName;
+    res.locals.imageName = imageName;
 
     cb(null, imageName);
   },
@@ -23,7 +30,14 @@ const storage = multer.diskStorage({
 
 exports.deleteImage = (req, res, next) => {
   //console.log(req.zaras);
-  const imagePath = path.join(__dirname, '..', 'public', 'img', req.imageName);
+  console.log(req.imageName);
+  const imagePath = path.join(
+    __dirname,
+    '..',
+    'public',
+    'img',
+    res.locals.imageName,
+  );
   console.log(imagePath);
   fs.unlink(imagePath, (err) => {
     if (err) {
@@ -103,6 +117,7 @@ exports.visualSearch = catchAsync(async (req, res, next) => {
 exports.visualSearchByPrompt = catchAsync(async (req, res, next) => {
   const imageName = await generate(req.body.prompt);
   req.imageName = imageName;
+  res.locals.imageName = imageName;
   if (process.env.NODE_ENV.trim() === 'production') {
     req.image = `${process.env.HOST}/public/img/${imageName}`;
   } else {

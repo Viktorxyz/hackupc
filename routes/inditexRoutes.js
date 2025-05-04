@@ -7,6 +7,7 @@ router
   .route('/visual-search')
   .post(
     inditexController.uploadImage,
+    inditexController.setImageName,
     inditexController.visualSearch,
     inditexController.deleteImage,
   );
