@@ -69,8 +69,15 @@ const upload = multer({ storage: storage });
 exports.uploadImage = upload.single('image');
 
 exports.visualSearch = catchAsync(async (req, res, next) => {
-  const page = req.query.page || 1;
-  const pageSize = 1;
+  let page;
+  let pageSize;
+  if (req.query.page) {
+    page = req.query.page;
+    pageSize = 1;
+  } else {
+    page = 1;
+    pageSize = 5;
+  }
   let imageUrl;
   if (req.image) {
     imageUrl = req.image;
