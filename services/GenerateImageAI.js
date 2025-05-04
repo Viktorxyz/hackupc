@@ -4,7 +4,7 @@ const crypto = require('crypto');
 
 const apiKey =
   '9f12407924a9ccb4b56e999e3aa07a6adda73a0de41fd92e40a4feb4983f87e9';
-const model = 'google/gemini-2.0-flash-exp:free';
+const model = 'stabilityai/sdxl-turbo:free';
 
 const url = 'https://ir-api.myqa.cc/v1/openai/images/generations';
 
